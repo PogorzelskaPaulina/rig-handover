@@ -31,6 +31,16 @@ describe('status board', () => {
     expect(html).toContain('2026-10-28');
   });
 
+  it('links each night to its digest with counts', async () => {
+    const app = createApp(config);
+    const html = await (await app.request('/')).text();
+    for (const night of ['2026-10-27', '2026-10-28']) {
+      expect(html).toContain(`href="/digest/${night}"`);
+      expect((await app.request(`/digest/${night}`)).status).toBe(200);
+    }
+    expect(html).toMatch(/ok \d+ · retry \d+ · fail \d+/);
+  });
+
   it('health answers with the lane id', async () => {
     const res = await createApp(config).request('/health');
     expect(await res.json()).toEqual({ ok: true, lane: 'lane-07' });
